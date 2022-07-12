@@ -1,25 +1,27 @@
 import feathersClient, { makeServicePlugin, BaseModel } from '../../feathers-client';
 
-class User extends BaseModel {
+class List extends BaseModel {
   // eslint-disable-next-line
-  // constructor(data, options) {
-  //   super(data, options);
-  // }
+  constructor(data, options) {
+    super(data, options);
+  }
 
   // Required for $FeathersVuex plugin to work after production transpile.
-  static modelName = 'User'
+  static modelName = 'List'
 
   // Define default properties here
   static instanceDefaults() {
     return {
-      username: '',
-      password: '',
+      name: '',
+      order: '',
+      boardId: '',
+      archived: false,
     };
   }
 }
-const servicePath = 'users';
+const servicePath = 'lists';
 const servicePlugin = makeServicePlugin({
-  Model: User,
+  Model: List,
   service: feathersClient.service(servicePath),
   servicePath,
 });
@@ -30,9 +32,7 @@ feathersClient.service(servicePath).hooks({
     all: [],
     find: [],
     get: [],
-    create: [
-      () => console.log('fds'),
-    ],
+    create: [],
     update: [],
     patch: [],
     remove: [],

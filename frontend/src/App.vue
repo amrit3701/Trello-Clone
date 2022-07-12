@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar
+    <!-- <v-app-bar
       app
       color="primary"
       dark
@@ -14,15 +14,6 @@
           transition="scale-transition"
           width="40"
         />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
       </div>
 
       <v-spacer></v-spacer>
@@ -32,9 +23,21 @@
         target="_blank"
         text
       >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
+      <v-btn :to="{ name: 'signup' }">SignUp</v-btn>
+      <v-btn :to="{ name: 'login' }">Login</v-btn>
+      <v-btn :to="{ name: 'logout' }">Logout</v-btn>
       </v-btn>
+    </v-app-bar> -->
+    <v-app-bar app>
+      <v-toolbar-title>Trello Clone</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-toolbar-items v-if="!user">
+        <v-btn text :to="{ name: 'signup' }">SignUp</v-btn>
+        <v-btn text :to="{ name: 'login' }">Login</v-btn>
+      </v-toolbar-items>
+      <v-toolbar-items v-if="user">
+        <v-btn text @click="logout">Logout</v-btn>
+      </v-toolbar-items>
     </v-app-bar>
 
     <v-main>
@@ -45,11 +48,30 @@
 
 <script>
 
+import { mapActions, mapState } from 'vuex';
+
 export default {
   name: 'App',
 
   data: () => ({
     //
   }),
+  mounted() {
+    this.authenticate().then(() => {
+      this.$router.push('/boards');
+    }).catch((e) => {
+      console.error('Authentication error', e);
+    });
+  },
+  computed: {
+    ...mapState('auth', { user: 'payload' }),
+  },
+  methods: {
+    ...mapActions('auth', ['authenticate']),
+    ...mapActions('auth', { authLogout: 'logout' }),
+    logout() {
+      this.authLogout().then(() => this.$router.push('/login'));
+    },
+  },
 };
 </script>

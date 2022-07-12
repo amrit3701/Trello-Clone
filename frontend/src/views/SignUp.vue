@@ -4,9 +4,9 @@
       <v-layout column align-center>
         <v-form v-model="valid" @submit.prevent="signUp" @keydown.prevent.enter>
           <v-text-field
-            v-model="user.email"
+            v-model="user.username"
             :rules="notEmptyRules"
-            label="E-mail"
+            label="Username"
             required
           ></v-text-field>
           <v-text-field
@@ -36,7 +36,7 @@ export default {
   data: (vm) => ({
     valid: false,
     user: {
-      email: '',
+      username: '',
       password: '',
       confirmPassword: '',
     },
@@ -46,6 +46,14 @@ export default {
   methods: {
     signUp() {
       if (this.valid) {
+        const { User } = this.$FeathersVuex.api;
+        const user = new User(this.user);
+        console.log(user);
+        user.create()
+          .then((us) => {
+            console.log(us);
+            this.$router.push('/login');
+          });
         console.log('the form is valid');
       }
     },

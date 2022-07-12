@@ -1,7 +1,10 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import HomeView from '../views/HomeView.vue';
-import SignUp from '../components/SignUp.vue';
+import SignUp from '../views/SignUp.vue';
+import LoginCmp from '../views/Login.vue';
+import BoardsCmp from '../views/Boards.vue';
+import BoardCmp from '../views/Board.vue';
 
 Vue.use(VueRouter);
 
@@ -13,8 +16,23 @@ const routes = [
   },
   {
     path: '/signup',
-    name: 'login',
+    name: 'signup',
     component: SignUp,
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginCmp,
+  },
+  {
+    path: '/boards',
+    name: 'boards',
+    component: BoardsCmp,
+  },
+  {
+    path: '/board/:id',
+    name: 'board',
+    component: BoardCmp,
   },
   {
     path: '/about',

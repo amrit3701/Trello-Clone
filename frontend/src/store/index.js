@@ -1,28 +1,10 @@
-// import Vue from 'vue';
-// import Vuex from 'vuex';
+import Vue from 'vue';
+import Vuex from 'vuex';
+import { FeathersVuex } from '../feathers-client';
+import auth from './store.auth';
 
-// Vue.use(Vuex);
-
-// export default new Vuex.Store({
-//   state: {
-//   },
-//   getters: {
-//   },
-//   mutations: {
-//   },
-//   actions: {
-//   },
-//   modules: {
-//   },
-// });
-
-import Vue from 'vue'
-import Vuex from 'vuex'
-import { FeathersVuex } from '../feathers-client'
-import auth from './store.auth'
-
-Vue.use(Vuex)
-Vue.use(FeathersVuex)
+Vue.use(Vuex);
+Vue.use(FeathersVuex);
 
 const requireModule = require.context(
   // The path where the service modules live
@@ -30,15 +12,15 @@ const requireModule = require.context(
   // Whether to look in subfolders
   false,
   // Only include .js files (prevents duplicate imports`)
-  /\.js$/
-)
+  /\.js$/,
+);
 const servicePlugins = requireModule
   .keys()
-  .map(modulePath => requireModule(modulePath).default)
+  .map((modulePath) => requireModule(modulePath).default);
 
 export default new Vuex.Store({
   state: {},
   mutations: {},
   actions: {},
-  plugins: [...servicePlugins, auth]
-})
+  plugins: [...servicePlugins, auth],
+});
