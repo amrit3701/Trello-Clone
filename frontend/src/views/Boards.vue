@@ -28,7 +28,6 @@
                 Go
               </v-btn>
             </v-card-actions>
-
           </v-card>
         </v-flex>
         <v-flex sm-3 pa-2>
@@ -68,14 +67,12 @@
         </v-flex>
       </v-layout>
     </v-slide-y-transition>
-  <!-- {{ user }} -->
   </v-container>
 </template>
 
 <script>
 
-// eslint-disable-next-line
-import { mapActions, mapGetters, mapState } from 'vuex';
+import { mapState } from 'vuex';
 
 export default {
   name: 'BoardsCmp',
@@ -90,14 +87,8 @@ export default {
   mounted() {
     const { Board } = this.$FeathersVuex.api;
     Board.find({ query: {} });
-    // this.findBoards({ query: {} });
-    // .then((response) => {
-    //   // eslint-disable-next-line
-    //   const boards = response.data || response;
-    // });
   },
   methods: {
-    // ...mapActions('boards', { findBoards: 'find' }),
     createBoard() {
       if (this.valid) {
         const { Board } = this.$FeathersVuex.api;
@@ -119,55 +110,6 @@ export default {
       const { Board } = this.$FeathersVuex.api;
       return Board.findInStore({ query: {} }).data;
     },
-    // user() {
-    //   return this.$store.state.auth.user;
-    // },
   },
 };
-
-// eslint-disable-next-line
-// import { mapActions, mapGetters, mapState } from 'vuex';
-
-// export default {
-//   name: 'BoardsCmp',
-//   data: () => ({
-//     valid: false,
-//     board: {
-//       name: '',
-//       background: '',
-//     },
-//     notEmptyRules: [(v) => !!v || 'Cannot be empty'],
-//   }),
-//   mounted() {
-//     this.findBoards({ query: {} })
-//       .then((response) => {
-//         // eslint-disable-next-line
-//         const boards = response.data || response;
-//       });
-//   },
-//   methods: {
-//     ...mapActions('boards', { findBoards: 'find' }),
-//     createBoard() {
-//       if (this.valid) {
-//         const { Board } = this.$FeathersVuex.api;
-//         const board = new Board(this.board);
-//         board.save();
-//         this.board = {
-//           name: '',
-//           background: '',
-//         };
-//       }
-//     },
-//   },
-//   computed: {
-//     ...mapState('boards', {
-//       loading: 'isFindingPending',
-//       creating: 'isCreatePending',
-//     }),
-//     ...mapGetters('boards', { findBoardsInStore: 'find' }),
-//     boards() {
-//       return this.findBoardsInStore({ query: {} }).data;
-//     },
-//   },
-// };
 </script>

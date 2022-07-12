@@ -55,8 +55,7 @@
 
 <script>
 
-// eslint-disable-next-line
-import { mapActions, mapGetters, mapState } from 'vuex';
+import { mapState } from 'vuex';
 
 export default {
   name: 'BoardCmp',
@@ -72,35 +71,10 @@ export default {
     notEmptyRules: [(v) => !!v || 'Cannot be empty'],
   }),
   mounted() {
-    // this.getBoard(this.$route.params.id);
-    // eslint-disable-next-line
     const { List } = this.$FeathersVuex.api;
-    // console.log(Board.get(this.$route.params.id));
     List.find({ query: { boardId: this.$route.params.id } });
-    //   this.findList({
-    //     query: {
-    //       boardId: this.$route.params.id,
-    //     },
-    //   });
   },
-  // mounted() {
-  //   this.getBoard(this.$route.params.id)
-  //     .then((response) => {
-  //       // eslint-disable-next-line
-  //       this.board = response.data || response;
-  //     });
-  //   this.findList({
-  //     query: {
-  //       boardId: this.$route.params.id,
-  //     },
-  //   }).then((response) => {
-  //     // eslint-disable-next-line
-  //     this.lists = response.data || response;
-  //   });
-  // },
   methods: {
-    // ...mapActions('boards', { getBoard: 'get' }),
-    // ...mapActions('lists', { findList: 'find' }),
     createList() {
       if (this.valid) {
         const { List } = this.$FeathersVuex.api;
@@ -132,14 +106,6 @@ export default {
         },
       }).data;
     },
-    // ...mapGetters('lists', { findListsInStore: 'find' }),
-    // lists() {
-    //   return this.findListsInStore({
-    //     query: {
-    //       boardId: this.$route.params.id,
-    //     },
-    //   }).data;
-    // },
   },
 };
 </script>
