@@ -1,45 +1,57 @@
 <template>
   <v-container fluid>
-    <v-slide-y-transition mode="out-in">
-      <v-layout row align-center wrap>
-        <v-progress-circular
-          :size="50"
-          color="primary"
-          indeterminate
-          v-if="loading"
-        ></v-progress-circular>
-        <v-flex sm-3 v-for="board in boards" :key="board._id" pa-2>
-          <v-card>
-            <v-img
-              height="300px"
-              width="300px"
-              :src="board.background"
+    <v-row dense>
+      <v-col cols="3" v-if="loading">
+        <v-skeleton-loader
+          class="mx-auto"
+          max-width="500"
+          type="card"
+        ></v-skeleton-loader>
+      </v-col>
+      <v-col cols="3" v-if="loading">
+        <v-skeleton-loader
+          class="mx-auto"
+          max-width="500"
+          type="card"
+        ></v-skeleton-loader>
+      </v-col>
+      <v-col
+        cols="3"
+        v-for="board in boards"
+        :key="board._id"
+      >
+        <v-card
+          class="mx-auto"
+          max-width="500"
+        >
+          <v-img
+            height="250"
+            :src="board.background"
+          ></v-img>
+          <v-card-title>{{ board.name }}</v-card-title>
+          <v-card-actions>
+            <v-btn
+              color="primary"
+              text
+              :to="{ name: 'board', params: {id: board._id} }"
             >
-            </v-img>
-            <v-card-title column style="flex-direction: column">
-              <div class="headline">{{ board.name }}</div>
-            </v-card-title>
-            <v-card-actions>
-              <v-btn
-                color="primary"
-                text
-                :to="{ name: 'board', params: {id: board._id} }"
-              >
-                Go
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-flex>
-        <v-flex sm-3 pa-2>
-          <v-card>
-            <v-card-title column style="flex-direction: column">
+              Go
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+      <v-col cols="3">
+          <v-card class="mx-auto" max-width="500">
+            <v-card-title class="text-h5">
               <div class="headline">Create Board</div>
+            </v-card-title>
+            <v-card-text class="text--primary">
               <div>
                 <v-form
                   v-model="valid"
                   @submit.prevent="createBoard"
                   @keydown.prevent.enter
-                  if-v="!creating"
+                  if-v="!board.isCreatePending"
                   >
                   <v-text-field
                     v-model="board.name"
@@ -59,20 +71,20 @@
                   :size="50"
                   color="primary"
                   indeterminate
-                  v-if="creating"
+                  v-if="board.isCreatePending"
                   ></v-progress-circular>
               </div>
-            </v-card-title>
+            </v-card-text>
           </v-card>
-        </v-flex>
-      </v-layout>
-    </v-slide-y-transition>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script>
 
 import { mapState } from 'vuex';
+import { models } from 'feathers-vuex';
 
 export default {
   name: 'BoardsCmp',
@@ -84,32 +96,25 @@ export default {
     },
     notEmptyRules: [(v) => !!v || 'Cannot be empty'],
   }),
-  mounted() {
-    const { Board } = this.$FeathersVuex.api;
-    Board.find({ query: {} });
+  created() {
+    this.board = new this.Board();
+    this.Board.find({ query: {} });
   },
   methods: {
-    createBoard() {
+    async createBoard() {
       if (this.valid) {
-        const { Board } = this.$FeathersVuex.api;
-        const board = new Board(this.board);
-        board.save();
-        this.board = {
-          name: '',
-          background: '',
-        };
+        console.log(this.board);
+        await this.board.create();
+        this.board = new this.Board();
       }
     },
   },
   computed: {
     ...mapState('boards', {
-      loading: 'isFindingPending',
-      creating: 'isCreatePending',
+      loading: 'isFindPending',
     }),
-    boards() {
-      const { Board } = this.$FeathersVuex.api;
-      return Board.findInStore({ query: {} }).data;
-    },
+    Board: () => models.api.Board,
+    boards: () => models.api.Board.findInStore().data,
   },
 };
 </script>
