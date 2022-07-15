@@ -48,6 +48,7 @@
             <v-card-text class="text--primary">
               <div>
                 <v-form
+                  ref="form"
                   v-model="valid"
                   @submit.prevent="createBoard"
                   @keydown.prevent.enter
@@ -65,7 +66,14 @@
                     label="background"
                     required
                   ></v-text-field>
-                  <v-btn type="submit" v-bind:disabled="!valid">Create</v-btn>
+                  <v-btn
+                    color="primary"
+                    text
+                    type="submit"
+                    v-bind:disabled="!valid"
+                  >
+                    Create
+                  </v-btn>
                 </v-form>
                   <v-progress-circular
                   :size="50"
@@ -103,9 +111,9 @@ export default {
   methods: {
     async createBoard() {
       if (this.valid) {
-        console.log(this.board);
         await this.board.create();
         this.board = new this.Board();
+        this.$refs.form.reset();
       }
     },
   },
