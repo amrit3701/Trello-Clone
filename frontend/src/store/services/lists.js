@@ -13,7 +13,7 @@ class List extends BaseModel {
   static instanceDefaults() {
     return {
       name: '',
-      order: '',
+      order: 0,
       boardId: '',
       archived: false,
     };
