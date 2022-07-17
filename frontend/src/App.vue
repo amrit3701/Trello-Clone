@@ -1,33 +1,5 @@
 <template>
   <v-app>
-    <!-- <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-      <v-btn :to="{ name: 'signup' }">SignUp</v-btn>
-      <v-btn :to="{ name: 'login' }">Login</v-btn>
-      <v-btn :to="{ name: 'logout' }">Logout</v-btn>
-      </v-btn>
-    </v-app-bar> -->
     <v-app-bar app>
       <v-toolbar-title>Trello Clone</v-toolbar-title>
       <v-spacer></v-spacer>
@@ -36,10 +8,13 @@
         <v-btn text :to="{ name: 'login' }">Login</v-btn>
       </v-toolbar-items>
       <v-toolbar-items v-if="user">
+        <v-btn
+          text
+        >{{ user.user.username }}
+        </v-btn>
         <v-btn text @click="logout">Logout</v-btn>
       </v-toolbar-items>
     </v-app-bar>
-
     <v-main>
       <router-view/>
     </v-main>
