@@ -98,10 +98,6 @@ export default {
   name: 'BoardsCmp',
   data: () => ({
     valid: false,
-    board: {
-      name: '',
-      background: '',
-    },
     notEmptyRules: [(v) => !!v || 'Cannot be empty'],
   }),
   created() {

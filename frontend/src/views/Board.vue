@@ -1,5 +1,6 @@
 <template>
   <v-container fluid>
+    <h2 v-if="board">{{ board.name }}</h2>
     <v-slide-y-transition mode="out-in">
       <v-layout row align-center wrap>
         <v-progress-circular
@@ -8,23 +9,29 @@
           indeterminate
           v-if="loadingBoard || loadingList"
         ></v-progress-circular>
-        <v-flex xs12>
-          <h2 v-if="board">{{ board.name }}</h2>
-        </v-flex>
-        <v-flex sm-3 v-for="list in lists" :key="list._id" pa-2>
-          <v-card>
+        <v-col v-for="list in lists" :key="list._id">
+          <v-card min-width="300">
             <v-card-title column style="flex-direction: column">
               <div class="headline">{{ list.name }}</div>
+              <div>
+                <ul v-if="cardsByListId[list._id]">
+                  <li v-for="card in cardsByListId[list._id]" :key="card._id"> {{ card.title }}</li>
+                </ul>
+              </div>
             </v-card-title>
+            <v-card-actions>
+              <CardComponent :boardId="$route.params.id" :listId="list._id"></CardComponent>
+            </v-card-actions>
           </v-card>
-        </v-flex>
+        </v-col>
 
-        <v-flex sm-3 pa-2>
-          <v-card>
+        <v-col>
+          <v-card min-width="300" max-width="300">
             <v-card-title column style="flex-direction: column">
               <div class="headline">Create List</div>
               <div>
                 <v-form
+                  ref="form"
                   v-model="valid"
                   @submit.prevent="createList"
                   @keydown.prevent.enter
@@ -47,46 +54,41 @@
               </div>
             </v-card-title>
           </v-card>
-        </v-flex>
+        </v-col>
+        <v-spacer></v-spacer>
       </v-layout>
     </v-slide-y-transition>
   </v-container>
 </template>
 
 <script>
-
 import { mapState } from 'vuex';
+import { models } from 'feathers-vuex';
+import CardComponent from '../components/card.vue';
 
 export default {
   name: 'BoardCmp',
+  components: {
+    CardComponent,
+  },
   data: () => ({
     valid: false,
-    board: {},
-    list: {
-      name: '',
-      boardId: '',
-      order: 0,
-      archived: false,
-    },
     notEmptyRules: [(v) => !!v || 'Cannot be empty'],
   }),
-  mounted() {
-    const { List } = this.$FeathersVuex.api;
-    List.find({ query: { boardId: this.$route.params.id } });
+  created() {
+    models.api.Board.get(this.$route.params.id);
+    this.List.find({ query: { boardId: this.$route.params.id } });
+    this.list = new this.List();
+
+    this.Card.find({ query: { boardId: this.$route.params.id } });
   },
   methods: {
-    createList() {
+    async createList() {
       if (this.valid) {
-        const { List } = this.$FeathersVuex.api;
         this.list.boardId = this.$route.params.id;
-        const list = new List(this.list);
-        list.save();
-        this.list = {
-          name: '',
-          boardId: '',
-          order: 0,
-          archived: false,
-        };
+        await this.list.create();
+        this.list = new this.List();
+        this.$refs.form.reset();
       }
     },
   },
@@ -98,13 +100,18 @@ export default {
       loadingList: 'isFindPending',
       creatingList: 'isCreatePending',
     }),
-    lists() {
-      const { List } = this.$FeathersVuex.api;
-      return List.findInStore({
-        query: {
-          boardId: this.$route.params.id,
-        },
-      }).data;
+    lists: (vm) => models.api.List.findInStore({ query: { boardId: vm.$route.params.id } }).data,
+    List: () => models.api.List,
+    board: (vm) => models.api.Board.getFromStore(vm.$route.params.id),
+    Card: () => models.api.Card,
+    cards: () => models.api.Card.findInStore().data,
+    cardsByListId() {
+      const byId = {};
+      Object.values(this.cards).forEach((card) => {
+        byId[card.listId] = byId[card.listId] || [];
+        byId[card.listId].push(card);
+      });
+      return byId;
     },
   },
 };
