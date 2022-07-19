@@ -2,23 +2,47 @@
   <v-container fluid>
     <h2 v-if="board">{{ board.name }}</h2>
     <v-slide-y-transition mode="out-in">
-      <v-layout row align-center wrap>
+      <v-layout row wrap>
         <v-progress-circular
           :size="50"
           color="primary"
           indeterminate
           v-if="loadingBoard || loadingList"
         ></v-progress-circular>
-        <v-col v-for="list in lists" :key="list._id">
-          <v-card min-width="300">
-            <v-card-title column style="flex-direction: column">
-              <div class="headline">{{ list.name }}</div>
-              <div>
-                <ul v-if="cardsByListId[list._id]">
-                  <li v-for="card in cardsByListId[list._id]" :key="card._id"> {{ card.title }}</li>
-                </ul>
-              </div>
-            </v-card-title>
+        <v-col v-for="list in lists" :key="list._id"
+            :class="{ 'cyan lighten-5': droppingList == list }"
+        >
+          <v-card
+            min-width="300"
+            @dragover="setDroppingList($event, list)"
+          >
+            <v-toolbar color="cyan" dark>
+              <v-toolbar-title>{{ list.name }}</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn icon>
+                <v-icon>mdi-magnify</v-icon>
+              </v-btn>
+            </v-toolbar>
+            <v-list one-line>
+              <!-- <v-subheader></v-subheader> -->
+                <div v-for="card in cardsByListId[list._id]" :key="card._id">
+                  <v-list-item
+                    draggable="true"
+                    @dragend="dropCard(card)"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title v-html="card.title">
+                        {{ card.title }}
+                      </v-list-item-title>
+                      <v-list-item-subtitle v-html="card.description">
+                        {{ card.description }}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-divider
+                  ></v-divider>
+                </div>
+            </v-list>
             <v-card-actions>
               <CardComponent :boardId="$route.params.id" :listId="list._id"></CardComponent>
             </v-card-actions>
@@ -62,6 +86,7 @@
 </template>
 
 <script>
+/* eslint-disable */
 import { mapState } from 'vuex';
 import { models } from 'feathers-vuex';
 import CardComponent from '../components/card.vue';
@@ -72,6 +97,7 @@ export default {
     CardComponent,
   },
   data: () => ({
+    droppingList: null,
     valid: false,
     notEmptyRules: [(v) => !!v || 'Cannot be empty'],
   }),
@@ -90,6 +116,18 @@ export default {
         this.list = new this.List();
         this.$refs.form.reset();
       }
+    },
+    setDroppingList(event, list) {
+      this.droppingList = list;
+      event.preventDefault();
+    },
+    dropCard(card) {
+      if (this.droppingList && this.droppingList._id != card.listId) {
+        console.log("update");
+        card.listId = this.droppingList._id;
+        card.save();
+      }
+      this.droppingList = null;
     },
   },
   computed: {
