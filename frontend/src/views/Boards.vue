@@ -52,7 +52,7 @@
                   v-model="valid"
                   @submit.prevent="createBoard"
                   @keydown.prevent.enter
-                  if-v="!board.isCreatePending"
+                  v-if="!board.isCreatePending"
                   >
                   <v-text-field
                     v-model="board.name"

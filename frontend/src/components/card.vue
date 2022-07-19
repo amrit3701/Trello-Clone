@@ -9,7 +9,7 @@
             v-model="valid"
             @submit.prevent="createCard"
             @keydown.prevent.enter
-            if-v="!card.isCreatePending"
+            v-if="!card.isCreatePending"
             >
             <v-text-field
               v-model="card.title"
@@ -19,12 +19,12 @@
             ></v-text-field>
             <v-btn type="submit" v-bind:disabled="!valid">Create</v-btn>
           </v-form>
-            <v-progress-circular
-            :size="50"
-            color="primary"
-            indeterminate
-            v-if="card.isCreatePending"
-            ></v-progress-circular>
+          <v-progress-circular
+          :size="50"
+          color="primary"
+          indeterminate
+          v-if="card.isCreatePending"
+          ></v-progress-circular>
         </div>
       </v-card-title>
     </v-card>
