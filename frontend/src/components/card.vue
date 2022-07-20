@@ -39,6 +39,8 @@ export default {
   props: {
     boardId: String,
     listId: String,
+    user: Object,
+    createActivity: Function,
   },
   data: () => ({
     valid: false,
@@ -55,6 +57,7 @@ export default {
       this.card.listId = this.listId;
       this.card.boardId = this.boardId;
       await this.card.create();
+      this.createActivity(`**${this.user.user.username}** created **${this.card.title}** card`);
       this.card = new this.Card();
       this.$refs.form.reset();
     },
