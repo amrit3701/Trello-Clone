@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-layout row wrap>
+    <v-layout row wrap v-if="!errorInList">
       <v-row class="ma-2 pa-2">
         <div class="text-h4" v-if="board">{{ board.name }}</div>
         <v-spacer></v-spacer>
