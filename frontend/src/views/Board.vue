@@ -2,7 +2,14 @@
   <v-container fluid>
     <h2 v-if="board">{{ board.name }}</h2>
     <v-slide-y-transition mode="out-in">
-      <v-layout row wrap>
+      <v-layout row wrap v-if="errorInList">
+        <v-col>
+          <v-alert dense outlined type="error">
+            You are not authorized access this board.
+          </v-alert>
+        </v-col>
+      </v-layout>
+      <v-layout row wrap v-else-if="!errorInList">
         <v-progress-circular
           :size="50"
           color="primary"
@@ -137,6 +144,7 @@ export default {
     ...mapState('lists', {
       loadingList: 'isFindPending',
       creatingList: 'isCreatePending',
+      errorInList: 'errorOnFind',
     }),
     lists: (vm) => models.api.List.findInStore({ query: { boardId: vm.$route.params.id } }).data,
     List: () => models.api.List,
