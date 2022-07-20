@@ -1,23 +1,11 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
+const { isBoardOwner } = require('../helpers');
 
-const isBoardOwner = async (context) => {
-  const { boardId } = context.params.query;
-  const { _id } = context.params.user._id;
-
-  const boards = await context.app.service('boards');
-  const board = await boards.get(boardId);
-
-  if (board && board.ownerId.equals(_id)) {
-    return context
-  } else {
-    return Promise.reject(new Error('Un-Authorized'));
-  }
-};
 
 module.exports = {
   before: {
-    all: [ authenticate('jwt') ],
-    find: [ isBoardOwner ],
+    all: [ authenticate('jwt'), isBoardOwner ],
+    find: [],
     get: [],
     create: [],
     update: [],
