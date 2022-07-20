@@ -1,7 +1,11 @@
 <template>
   <v-app>
     <v-app-bar app>
-      <v-toolbar-title>Trello Clone</v-toolbar-title>
+      <v-toolbar-title>
+        <v-btn text :to="{ name: 'boards' }">
+          Trello Clone
+        </v-btn>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items v-if="!user">
         <v-btn text :to="{ name: 'signup' }">SignUp</v-btn>
@@ -33,7 +37,6 @@ export default {
   }),
   mounted() {
     this.authenticate().then(() => {
-      this.$router.push('/boards');
     }).catch((e) => {
       console.error('Authentication error', e);
     });
