@@ -1,6 +1,48 @@
 <template>
   <v-container fluid>
-    <h2 v-if="board">{{ board.name }}</h2>
+    <v-layout row wrap>
+      <v-row class="ma-2 pa-2">
+        <div class="text-h4" v-if="board">{{ board.name }}</div>
+        <v-spacer></v-spacer>
+        <div>
+          <v-dialog
+            model="false"
+            width="600px"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                text
+                class="text-decoration-none"
+                v-bind="attrs"
+                v-on="on"
+              >
+                See Activities
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Activities</span>
+              </v-card-title>
+            <v-card-text>
+              <v-list three-line>
+                <template v-for="(activity, index) in activitiesByDate">
+                  <v-list-item :key="activity._id">
+                    <v-list-item-content>
+                      <v-list-item-title v-html="markdownToHtml(activity.text)"></v-list-item-title>
+                      <v-list-item-subtitle
+                        v-html="beautifyDate(activity.createdAt)"
+                      ></v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-divider :key="index"></v-divider>
+                </template>
+              </v-list>
+            </v-card-text>
+              </v-card>
+          </v-dialog>
+        </div>
+      </v-row>
+    </v-layout>
     <v-slide-y-transition mode="out-in">
       <v-layout row wrap v-if="errorInList">
         <v-col>
@@ -51,7 +93,13 @@
                 </div>
             </v-list>
             <v-card-actions>
-              <CardComponent :boardId="$route.params.id" :listId="list._id"></CardComponent>
+              <CardComponent
+                :boardId="$route.params.id"
+                :listId="list._id"
+                :user="user"
+                :createActivity="createActivity"
+              >
+              </CardComponent>
             </v-card-actions>
           </v-card>
         </v-col>
@@ -96,6 +144,7 @@
 /* eslint-disable */
 import { mapState } from 'vuex';
 import { models } from 'feathers-vuex';
+import { marked } from 'marked';
 import CardComponent from '../components/card.vue';
 
 export default {
@@ -107,19 +156,30 @@ export default {
     droppingList: null,
     valid: false,
     notEmptyRules: [(v) => !!v || 'Cannot be empty'],
+
+    drawer: false,
+    group: null,
+
   }),
+  watch: {
+    group () {
+      this.drawer = false
+    },
+  },
   created() {
     models.api.Board.get(this.$route.params.id);
     this.List.find({ query: { boardId: this.$route.params.id } });
     this.list = new this.List();
 
     this.Card.find({ query: { boardId: this.$route.params.id } });
+    this.Activity.find({ query: { boardId: this.$route.params.id } });
   },
   methods: {
     async createList() {
       if (this.valid) {
         this.list.boardId = this.$route.params.id;
         await this.list.create();
+        this.createActivity(`**${this.user.user.username}** created **${this.list.name}** list`);
         this.list = new this.List();
         this.$refs.form.reset();
       }
@@ -130,11 +190,25 @@ export default {
     },
     dropCard(card) {
       if (this.droppingList && this.droppingList._id != card.listId) {
-        console.log("update");
         card.listId = this.droppingList._id;
         card.save();
+        this.createActivity(`**${this.user.user.username}** moved **${card.title}** card to **${this.droppingList.name}**`);
       }
       this.droppingList = null;
+    },
+    createActivity(text) {
+      const activity = new this.Activity();
+      activity.text = text
+      activity.boardId = this.$route.params.id;
+      activity.create();
+    },
+    markdownToHtml(markdownText) {
+      return marked(markdownText);
+    },
+    beautifyDate(t) {
+      const date = new Date();
+      date.setTime(Date.parse(t));
+      return date.toString();
     },
   },
   computed: {
@@ -146,6 +220,7 @@ export default {
       creatingList: 'isCreatePending',
       errorInList: 'errorOnFind',
     }),
+    ...mapState('auth', { user: 'payload' }),
     lists: (vm) => models.api.List.findInStore({ query: { boardId: vm.$route.params.id } }).data,
     List: () => models.api.List,
     board: (vm) => models.api.Board.getFromStore(vm.$route.params.id),
@@ -158,6 +233,11 @@ export default {
         byId[card.listId].push(card);
       });
       return byId;
+    },
+    Activity: () => models.api.Activity,
+    activities: (vm) => models.api.Activity.findInStore(vm.$route.params.id).data,
+    activitiesByDate() {
+      return this.activities.slice().reverse();
     },
   },
 };
