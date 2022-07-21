@@ -157,15 +157,7 @@ export default {
     valid: false,
     notEmptyRules: [(v) => !!v || 'Cannot be empty'],
 
-    drawer: false,
-    group: null,
-
   }),
-  watch: {
-    group () {
-      this.drawer = false
-    },
-  },
   created() {
     models.api.Board.get(this.$route.params.id);
     this.List.find({ query: { boardId: this.$route.params.id } });
@@ -189,7 +181,7 @@ export default {
       event.preventDefault();
     },
     dropCard(card) {
-      if (this.droppingList && this.droppingList._id != card.listId) {
+      if (this.droppingList && this.droppingList._id !== card.listId) {
         card.listId = this.droppingList._id;
         card.save();
         this.createActivity(`**${this.user.user.username}** moved **${card.title}** card to **${this.droppingList.name}**`);
@@ -198,7 +190,7 @@ export default {
     },
     createActivity(text) {
       const activity = new this.Activity();
-      activity.text = text
+      activity.text = text;
       activity.boardId = this.$route.params.id;
       activity.create();
     },
