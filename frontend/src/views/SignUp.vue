@@ -48,13 +48,10 @@ export default {
       if (this.valid) {
         const { User } = this.$FeathersVuex.api;
         const user = new User(this.user);
-        console.log(user);
         user.create()
-          .then((us) => {
-            console.log(us);
+          .then(() => {
             this.$router.push('/login');
           });
-        console.log('the form is valid');
       }
     },
   },
