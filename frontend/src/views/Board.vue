@@ -213,11 +213,12 @@ export default {
       errorInList: 'errorOnFind',
     }),
     ...mapState('auth', { user: 'payload' }),
-    lists: (vm) => models.api.List.findInStore({ query: { boardId: vm.$route.params.id } }).data,
     List: () => models.api.List,
-    board: (vm) => models.api.Board.getFromStore(vm.$route.params.id),
     Card: () => models.api.Card,
-    cards: () => models.api.Card.findInStore().data,
+    Activity: () => models.api.Activity,
+    lists: (vm) => vm.List.findInStore({ query: { boardId: vm.$route.params.id } }).data,
+    board: (vm) => models.api.Board.getFromStore(vm.$route.params.id),
+    cards: (vm) => vm.Card.findInStore().data,
     cardsByListId() {
       const byId = {};
       Object.values(this.cards).forEach((card) => {
@@ -226,8 +227,7 @@ export default {
       });
       return byId;
     },
-    Activity: () => models.api.Activity,
-    activities: (vm) => models.api.Activity.findInStore(vm.$route.params.id).data,
+    activities: (vm) => vm.Activity.findInStore(vm.$route.params.id).data,
     activitiesByDate() {
       return this.activities.slice().reverse();
     },
