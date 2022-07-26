@@ -58,11 +58,10 @@
           indeterminate
           v-if="loadingBoard || loadingList"
         ></v-progress-circular>
-        <v-col v-for="list in lists" :key="list._id"
+        <v-col xl="1" lg="2" md="3" sm="4" v-for="list in lists" :key="list._id"
             :class="{ 'cyan lighten-5': droppingList == list }"
         >
           <v-card
-            min-width="300"
             @dragover="setDroppingList($event, list)"
           >
             <v-toolbar color="cyan" dark>
@@ -103,9 +102,8 @@
             </v-card-actions>
           </v-card>
         </v-col>
-
-        <v-col>
-          <v-card min-width="300" max-width="300">
+        <v-col xl="1" lg="2" md="3" sm="4">
+          <v-card>
             <v-card-title column style="flex-direction: column">
               <div class="headline">Create List</div>
               <div>
