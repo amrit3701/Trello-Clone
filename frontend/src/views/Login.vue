@@ -20,6 +20,12 @@
         </v-form>
       </v-layout>
     </v-slide-y-transition>
+    <PopUpDialog
+      :show-dialog="invalidLoginDialog"
+      title="Authentication Error"
+      description="Invalid credentials"
+      @updateDialogValue="invalidLoginDialog = false"
+    ></PopUpDialog>
   </v-container>
 </template>
 
@@ -27,10 +33,16 @@
 
 import { mapActions } from 'vuex';
 
+import PopUpDialog from '../components/PopUpDialog.vue';
+
 export default {
   name: 'LoginCmp',
+  components: {
+    PopUpDialog,
+  },
   data: () => ({
     valid: false,
+    invalidLoginDialog: false,
     user: {
       username: '',
       password: '',
@@ -47,9 +59,9 @@ export default {
           strategy: 'local',
           ...this.user,
         }).then(() => {
-          console.log('Log IN');
           this.$router.push('/boards');
         }).catch((e) => {
+          this.invalidLoginDialog = true;
           console.error('Authentication error', e);
         });
       }
