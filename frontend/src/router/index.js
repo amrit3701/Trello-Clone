@@ -1,5 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import store from '@/store/index';
+
 import HomeView from '../views/HomeView.vue';
 import SignUp from '../views/SignUp.vue';
 import LoginCmp from '../views/Login.vue';
@@ -28,11 +30,13 @@ const routes = [
     path: '/boards',
     name: 'boards',
     component: BoardsCmp,
+    meta: { requiresAuth: true },
   },
   {
     path: '/board/:id',
     name: 'board',
     component: BoardCmp,
+    meta: { requiresAuth: true },
   },
   {
     path: '/about',
@@ -48,6 +52,17 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes,
+});
+
+router.beforeEach(async (to, from, next) => {
+  if (to.meta && to.meta.requiresAuth) {
+    try {
+      await store.dispatch('auth/authenticate');
+    } catch (err) {
+      next({ name: 'login' });
+    }
+  }
+  next();
 });
 
 export default router;
