@@ -46,6 +46,12 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue'),
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'pageNotFound',
+    component: () => import(/* webpackChunkName: "page_not_found" */ '../views/PageNotFound.vue'),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = new VueRouter({
