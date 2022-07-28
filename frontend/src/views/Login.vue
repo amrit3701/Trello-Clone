@@ -16,8 +16,14 @@
             type="password"
             required
           ></v-text-field>
-          <v-btn type="submit" v-bind:disabled="!valid">LogIn</v-btn>
+          <v-btn type="submit" v-bind:disabled="!valid || isAuthenticatePending">LogIn</v-btn>
         </v-form>
+        <v-progress-circular
+          :size="50"
+          color="primary"
+          indeterminate
+          v-if="isAuthenticatePending"
+        ></v-progress-circular>
       </v-layout>
     </v-slide-y-transition>
     <PopUpDialog
@@ -31,7 +37,7 @@
 
 <script>
 
-import { mapActions } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 import PopUpDialog from '../components/PopUpDialog.vue';
 
@@ -50,12 +56,13 @@ export default {
     notEmptyRules: [(v) => !!v || 'Cannot be empty'],
   }),
   computed: {
+    ...mapState('auth', ['isAuthenticatePending']),
   },
   methods: {
     ...mapActions('auth', ['authenticate']),
-    login() {
+    async login() {
       if (this.valid) {
-        this.authenticate({
+        await this.authenticate({
           strategy: 'local',
           ...this.user,
         }).then(() => {
