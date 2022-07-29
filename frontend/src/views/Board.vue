@@ -2,8 +2,10 @@
   <v-container fluid>
     <div v-if="loadingBoard || loadingList">
       <v-progress-linear
+        absolute
         indeterminate
-        color="grey"
+        top
+        color="secondary"
       ></v-progress-linear>
     </div>
     <div v-else>
@@ -60,17 +62,32 @@
           </v-col>
         </v-layout>
         <v-layout row wrap v-if="!loadingList">
-          <v-col xl="1" lg="2" md="3" sm="4" v-for="list in lists" :key="list._id"
-              :class="{ 'cyan lighten-5': droppingList == list }"
-          >
-            <v-card
+          <v-col xl="1" lg="2" md="3" sm="4" v-for="list in lists" :key="list._id">
+            <v-card :disabled="list.isRemovePending"
+              class="elevation-2"
               @dragover="setDroppingList($event, list)"
             >
-              <v-toolbar color="cyan" dark>
-                <v-toolbar-title>{{ list.name }}</v-toolbar-title>
+              <v-progress-linear
+                :active="list.isRemovePending || list.isUpdatePending"
+                :indeterminate="list.isRemovePending || list.isUpdatePending"
+                absolute
+                top
+                color="secondary"
+              ></v-progress-linear>
+              <v-toolbar height="80px" dark>
+                <v-toolbar-title>
+                  <v-text-field
+                    v-model="list.name"
+                    :label="list.name"
+                    :rules="notEmptyRules"
+                    solo
+                    @change="updateListName(list)"
+                  >
+                  </v-text-field>
+                </v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-btn icon>
-                  <v-icon>mdi-magnify</v-icon>
+                <v-btn icon @click="deleteList(list)">
+                  <v-icon>{{ icon }}</v-icon>
                 </v-btn>
               </v-toolbar>
               <v-list one-line>
@@ -104,7 +121,7 @@
             </v-card>
           </v-col>
           <v-col xl="1" lg="2" md="3" sm="4">
-            <v-card>
+            <v-card class="elevation-2">
               <v-card-title column style="flex-direction: column">
                 <div class="headline">Create List</div>
                 <div>
@@ -113,7 +130,7 @@
                     v-model="valid"
                     @submit.prevent="createList"
                     @keydown.prevent.enter
-                    v-if="!lists.isCreatePending"
+                    v-if="!creatingList"
                     >
                     <v-text-field
                       v-model="list.name"
@@ -127,7 +144,7 @@
                     :size="50"
                     color="primary"
                     indeterminate
-                    v-if="lists.isCreatePending"
+                    v-if="creatingList"
                   ></v-progress-circular>
                 </div>
               </v-card-title>
@@ -142,7 +159,8 @@
 
 <script>
 /* eslint-disable */
-import { mapState } from 'vuex';
+import { mdiDeleteOutline } from '@mdi/js';
+import { mapState, mapActions } from 'vuex';
 import { models } from 'feathers-vuex';
 import { marked } from 'marked';
 import CardComponent from '../components/card.vue';
@@ -156,6 +174,7 @@ export default {
     droppingList: null,
     valid: false,
     notEmptyRules: [(v) => !!v || 'Cannot be empty'],
+    icon: mdiDeleteOutline,
   }),
   created() {
     this.list = new this.List();
@@ -166,6 +185,7 @@ export default {
     this.Activity.find({ query: { boardId: this.$route.params.id } });
   },
   methods: {
+    ...mapActions('lists', {removeList: 'remove'}),
     async createList() {
       if (this.valid) {
         this.list.boardId = this.$route.params.id;
@@ -201,6 +221,27 @@ export default {
       date.setTime(Date.parse(t));
       return date.toString();
     },
+    updateListName(list) {
+      if (list.name) {
+        list.update();
+      }
+    },
+    async deleteList(list) {
+      const cardsInList = this.cardsByListId[list._id];
+      const queryArgs = {query: {boardId: list.boardId}};
+      if (cardsInList) {
+        const isSure = confirm(
+          'Are you sure?\nNote: list has cards, deleting list automatically deletes all list cards.'
+        );
+        if (isSure) {
+          // No need to await for card to delete
+          cardsInList.forEach((card) => card.remove(queryArgs));
+          await list.remove(queryArgs);
+        }
+      } else {
+        await list.remove(queryArgs);
+      }
+    },
   },
   computed: {
     ...mapState('boards', {
@@ -233,3 +274,10 @@ export default {
   },
 };
 </script>
+<style scoped>
+/*>>> .v-text-field>.v-input__control>.v-input__slot {*/
+/*  background: none;*/
+/*  box-shadow: none;*/
+/*  color: pink;*/
+/*}*/
+</style>
