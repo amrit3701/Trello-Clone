@@ -14,12 +14,6 @@ const isBoardOwner = async context => {
   }
 };
 
-const wait = () => {
-  return new Promise(res => {
-    setTimeout(() => res(), 2000);
-  });
-};
-
 module.exports = {
-  isBoardOwner, wait
+  isBoardOwner
 };

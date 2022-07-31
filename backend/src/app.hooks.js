@@ -1,6 +1,10 @@
 // Application hooks that run for every service
-const wait = require('./services/helpers');
 
+const wait = () => {
+  return new Promise(res => {
+    setTimeout(() => res(), 2000);
+  });
+};
 
 module.exports = {
   before: {
