@@ -91,10 +91,14 @@
                 </v-btn>
               </v-toolbar>
               <v-list one-line>
-                  <div v-for="card in cardsByListId[list._id]" :key="card._id">
+                  <div
+                    v-for="card in cardsByListId[list._id]"
+                    :key="card._id"
+                  >
                     <v-list-item
                       draggable="true"
                       @dragend="dropCard(card)"
+                      :disabled="card.isRemovePending"
                     >
                       <v-list-item-content>
                         <v-list-item-title v-html="card.title">
@@ -104,6 +108,11 @@
                           {{ card.description }}
                         </v-list-item-subtitle>
                       </v-list-item-content>
+                      <v-list-item-action>
+                        <v-btn icon @click="card.remove({query: {boardId: card.boardId}})">
+                          <v-icon>{{ icon }}</v-icon>
+                        </v-btn>
+                      </v-list-item-action>
                     </v-list-item>
                     <v-divider
                     ></v-divider>
