@@ -245,10 +245,14 @@ export default {
         if (isSure) {
           // No need to await for card to delete
           cardsInList.forEach((card) => card.remove(queryArgs));
-          await list.remove(queryArgs);
+          await list.remove(queryArgs).then(
+            () => this.createActivity(`**${this.user.user.username}** delete **${list.name}** and it's cards`)
+          );
         }
       } else {
-        await list.remove(queryArgs);
+        await list.remove(queryArgs).then(
+          () => this.createActivity(`**${this.user.user.username}** delete **${list.name}**`)
+        );
       }
     },
   },
