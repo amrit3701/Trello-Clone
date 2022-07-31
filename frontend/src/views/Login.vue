@@ -67,9 +67,8 @@ export default {
           ...this.user,
         }).then(() => {
           this.$router.push('/boards');
-        }).catch((e) => {
+        }).catch(() => {
           this.invalidLoginDialog = true;
-          console.error('Authentication error', e);
         });
       }
     },
