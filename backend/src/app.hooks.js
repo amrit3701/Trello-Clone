@@ -1,14 +1,16 @@
 // Application hooks that run for every service
+const wait = require('./services/helpers');
+
 
 module.exports = {
   before: {
     all: [],
-    find: [],
+    find: [wait],
     get: [],
-    create: [],
-    update: [],
+    create: [wait],
+    update: [wait],
     patch: [],
-    remove: []
+    remove: [wait]
   },
 
   after: {
