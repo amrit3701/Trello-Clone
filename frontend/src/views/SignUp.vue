@@ -25,16 +25,38 @@
           ></v-text-field>
           <v-btn type="submit" v-bind:disabled="!valid">SignUp</v-btn>
         </v-form>
+        <v-progress-circular
+          :size="50"
+          color="primary"
+          indeterminate
+          v-if="isCreatePending"
+        ></v-progress-circular>
       </v-layout>
     </v-slide-y-transition>
+    <PopUpDialog
+      :show-dialog="invalidSignUpDialog"
+      title="Error"
+      :description=errorMsg
+      @updateDialogValue="invalidSignUpDialog = false"
+    ></PopUpDialog>
   </v-container>
 </template>
 
 <script>
+import { mapState } from 'vuex';
+import { models } from 'feathers-vuex';
+
+import PopUpDialog from '../components/PopUpDialog.vue';
+
 export default {
   name: 'SignUp',
+  components: {
+    PopUpDialog,
+  },
   data: (vm) => ({
     valid: false,
+    invalidSignUpDialog: false,
+    errorMsg: '',
     user: {
       username: '',
       password: '',
@@ -43,14 +65,20 @@ export default {
     notEmptyRules: [(v) => !!v || 'Cannot be empty'],
     confirmPasswordRules: [(confirmPassword) => confirmPassword === vm.user.password || 'Password must match'],
   }),
+  computed: {
+    User: () => models.api.User,
+    ...mapState('users', ['isCreatePending']),
+  },
   methods: {
-    signUp() {
+    async signUp() {
       if (this.valid) {
-        const { User } = this.$FeathersVuex.api;
-        const user = new User(this.user);
-        user.create()
+        const user = new this.User(this.user);
+        await user.create()
           .then(() => {
             this.$router.push('/login');
+          }).catch((e) => {
+            this.errorMsg = e.message;
+            this.invalidSignUpDialog = true;
           });
       }
     },
